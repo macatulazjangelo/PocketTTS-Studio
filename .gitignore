@@ -1,0 +1,40 @@
+# Local application data: recordings, scripts, voices, job manifests, database
+/data/
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.*
+# Audio and model artifacts
+*.wav
+*.mp3
+*.flac
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.bin
+models/
+weights/
+.cache/
+# Historical local backups
+*_backup_*
+*.bak
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
+*.log

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pocket TTS Studio</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo">P</div>
+
+            <div>
+                <strong>Pocket TTS</strong>
+                <span>Studio</span>
+            </div>
+        </div>
+
+        <nav>
+
+            <button class="nav active" data-page="studio">
+                <span>◉</span>
+                Text to Speech
+            </button>
+
+            <button class="nav" data-page="voices">
+                <span>♬</span>
+                Voice Library
+            </button>
+
+            <button class="nav" data-page="clone">
+                <span>＋</span>
+                Voice Cloning
+            </button>
+
+            <button class="nav" data-page="audio">
+                <span>▶</span>
+                Audio Library
+            </button>
+
+            <button class="nav" data-page="settings">
+                <span>⚙</span>
+                Settings
+            </button>
+
+        </nav>
+
+        <div class="status">
+            <span class="status-dot"></span>
+            <span id="serverStatus">Checking server...</span>
+        </div>
+
+    </aside>
+
+        <div class="longform-section">
+        <div class="longform-header">
+            <div>
+                <h3>Long Form</h3>
+                <p>
+                    Generate longer scripts using chunked,
+                    recoverable generation.
+                </p>
+            </div>
+
+            <label class="longform-toggle">
+                <input
+                    type="checkbox"
+                    id="longformMode"
+                >
+                <span>Enable Long Form</span>
+            </label>
+        </div>
+
+        <div
+            id="longformProgress"
+            class="longform-progress"
+            hidden
+        >
+            <div class="progress-heading">
+                <span id="longformStatusText">
+                    Preparing...
+                </span>
+
+                <span id="longformPercent">
+                    0%
+                </span>
+            </div>
+
+            <div class="progress-track">
+                <div
+                    id="longformProgressBar"
+                    class="progress-bar"
+                ></div>
+            </div>
+
+            <div class="progress-details">
+                <span id="longformChunkText">
+                    0 / 0 chunks
+                </span>
+
+                <span id="longformCurrentText">
+                    Waiting...
+                </span>
+            </div>
+            <div
+                id="longformRecovery"
+                class="longform-recovery"
+                hidden>
+                <button
+                    id="resumeLongformBtn"
+                    class="secondary"
+                    type="button">
+                    Resume Generation
+                </button>
+            </div>
+        </div>
+
+        <div
+            id="longformError"
+            class="longform-error"
+            hidden
+        ></div>
+    </div>
+
+
+    <main class="content">
+
+        <!-- TTS -->
+
+        <section class="page active" id="studio">
+
+            <div class="page-header">
+                <div>
+                    <h1>Text to Speech</h1>
+                    <p>Turn your scripts into long-form narration.</p>
+                </div>
+            </div>
+
+
+            <div class="studio-grid">
+
+                <div class="card script-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <h2>Script</h2>
+                            <p>Paste your script below.</p>
+                        </div>
+
+                        <button class="secondary">
+                            Upload TXT
+                        </button>
+
+                    </div>
+
+
+                    <textarea
+                        id="script"
+                        placeholder="Paste your script here..."
+                    ></textarea>
+
+
+                    <div class="script-info">
+
+                        <span>
+                            <strong id="words">0</strong>
+                            words
+                        </span>
+
+                        <span>
+                            ~<strong id="duration">0</strong>
+                            min audio
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card controls">
+
+                    <h2>Narrator</h2>
+
+                    <label for="voice">Voice</label>
+
+                    <select id="voice">
+                        <option value="">Loading voices...</option>
+                    </select>
+
+
+                    <div class="voice-preview">
+
+                        <div class="voice-avatar">
+                            P
+                        </div>
+
+                        <div>
+                            <strong>Default Voice</strong>
+                            <span>Built-in</span>
+                        </div>
+
+                    </div>
+
+
+                    <label for="format">Output format</label>
+
+                    <select id="format">
+                        <option>MP3</option>
+                        <option>WAV</option>
+                    </select>
+
+
+                    <div class="generation-info">
+
+                        <div>
+                            <span>Processing</span>
+                            <strong>Automatic chunking</strong>
+                        </div>
+
+                        <div>
+                            <span>Output</span>
+                            <strong>Single audio file</strong>
+                        </div>
+
+                    </div>
+
+
+                    <button class="generate" id="generateBtn">
+   			 Generate Audio
+		    </button>
+
+		   <p id="generationStatus" class="generation-status"></p>
+
+		   <div id="audioResult" hidden>
+                <div class="generated-audio-panel">
+
+                    <div class="generated-audio-header">
+                        <div>
+                            <span class="result-label">
+                                Generated Audio
+                            </span>
+
+                            <strong id="generatedVoiceName">
+                                —
+                            </strong>
+                        </div>
+
+                        <span
+                            id="generationCompleteBadge"
+                            class="generation-badge">
+                            ✓ Generation complete
+                        </span>
+                    </div>
+
+
+                    <audio
+                        id="audioPlayer"
+                        controls
+                        preload="metadata">
+                    </audio>
+
+
+                    <div class="filename-field">
+
+                        <label for="audioFilename">
+                            File name
+                        </label>
+
+                        <div class="filename-input-wrapper">
+
+                            <input
+                                id="audioFilename"
+                                type="text"
+                                maxlength="150"
+                                placeholder="Recording name"
+                                autocomplete="off"
+                                spellcheck="false">
+
+                            <span>.wav</span>
+
+                        </div>
+
+                        <p class="filename-help">
+                            You can rename the recording before downloading it.
+                        </p>
+
+                    </div>
+
+
+                    <div class="generated-audio-actions">
+
+                        <button
+                            id="downloadAudio"
+                            class="download-button"
+                            type="button">
+                            ↓ Download WAV
+                        </button>
+
+                        <button
+                            id="regenerateAudio"
+                            class="secondary"
+                            type="button">
+                            Regenerate
+                        </button>
+
+                    </div>
+
+                </div>
+		    </div>
+                    <small>
+                        Generate a short recording to test your selected voice.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- VOICES -->
+
+        <section class="page" id="voices">
+
+            <div class="page-header">
+                <div>
+                    <h1>Voice Library</h1>
+                    <p>Your narrators in one place.</p>
+                </div>
+            </div>
+
+            <div class="library-tabs">
+
+                <button class="tab active" data-category="all">
+                    All
+                </button>
+
+                <button class="tab" data-category="builtin">
+                    Built-in
+                </button>
+
+                <button class="tab" data-category="cloned">
+                    My Voices
+                </button>
+
+                <button class="tab" data-category="favorites">
+                    ★ Favorites
+                </button>
+
+            </div>
+
+            <!-- Installed / saved voices -->
+            <div id="voiceGrid" class="voice-grid"></div>
+
+            <!-- Community browser -->
+            <div id="communityBrowser" hidden>
+
+                <div class="community-header">
+                    <div>
+                        <h2>Community Voices</h2>
+                        <p>
+                            Browse reference voices from Kyutai's official
+                            TTS voice repository.
+                        </p>
+                    </div>
+
+                    <button id="refreshCommunityBtn" class="secondary">
+                        Refresh
+                    </button>
+                </div>
+
+                <input
+                    id="communitySearch"
+                    class="community-search"
+                    type="search"
+                    placeholder="Search voices or collections..."
+                >
+
+                <p id="communityCount" class="generation-status"></p>
+
+                <div
+                    id="communityVoiceGrid"
+                    class="voice-grid">
+                </div>
+
+            </div>
+
+            <p id="voiceLibraryStatus" class="generation-status"></p>
+
+        </section>
+
+        <!-- CLONING -->
+
+        <section class="page" id="clone">
+
+            <div class="page-header">
+
+                <div>
+                    <h1>Voice Cloning</h1>
+                    <p>Create reusable local narrator voices.</p>
+                </div>
+
+            </div>
+
+
+            <div class="card centered">
+
+                <div class="upload-icon">＋</div>
+
+                <h2>Create a voice</h2>
+
+                <p>
+                    Upload a clean voice recording and Pocket TTS
+                    will create a reusable voice profile.
+                </p>
+
+                <button class="secondary" disabled>
+                    Choose Audio File
+                </button>
+
+                <small>
+                    Voice cloning will be enabled in Phase 4.
+                </small>
+
+            </div>
+
+        </section>
+
+
+        <!-- AUDIO LIBRARY -->
+
+        <section class="page" id="audio">
+
+            <div class="page-header">
+
+                <div>
+                    <h1>Audio Library</h1>
+                    <p>Your generated narrations.</p>
+                </div>
+
+            </div>
+
+
+            <div class="card centered">
+
+                <div class="upload-icon">▶</div>
+
+                <h2>No recordings yet</h2>
+
+                <p>
+                    Finished narration projects will automatically
+                    appear here.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+
+        <section class="page" id="settings">
+
+            <div class="page-header">
+
+                <div>
+                    <h1>Settings</h1>
+                    <p>Configure Pocket TTS Studio.</p>
+                </div>
+
+            </div>
+
+
+            <div class="card settings-card">
+
+                <h2>Storage</h2>
+
+                <div class="setting-row">
+
+                    <div>
+                        <strong>Voice Library</strong>
+                        <span>data/voices/</span>
+                    </div>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div>
+                        <strong>Recordings</strong>
+                        <span>data/recordings/</span>
+                    </div>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <div>
+                        <strong>Scripts</strong>
+                        <span>data/scripts/</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>
